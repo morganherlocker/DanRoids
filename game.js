@@ -22,6 +22,8 @@ $(document).ready(function() {
 		Crafty.scene("main");
 	});
 
+	highScoreVal = 0;
+		
 	Crafty.scene("main", function() {
 		Crafty.background("url('images/bg.png')");
 
@@ -31,6 +33,13 @@ $(document).ready(function() {
 			.attr({x: Crafty.viewport.width - 300, y: Crafty.viewport.height - 250, w: 200, h:50})
 			.css({color: "#fff"});
 			
+		//high score display
+		var highScore = Crafty.e("2D, DOM, Text")
+			.text(" High Score: 0")
+			.attr({x: Crafty.viewport.width - 300, y: Crafty.viewport.height - 225, w: 200, h:50})
+			.css({color: "#fff"});
+		highScore.text("High Score: "+highScoreVal);
+		
 		var isExploding = false;
 		
 		//player entity
@@ -52,8 +61,8 @@ $(document).ready(function() {
 					//create a bullet entity
 					Crafty.e("2D, DOM, Color, bullet")
 						.attr({
-							x: this._x, 
-							y: this._y, 
+							x: this._x + 32, 
+							y: this._y + 32, 
 							w: 2, 
 							h: 5, 
 							rotation: this._rotation, 
@@ -179,7 +188,12 @@ $(document).ready(function() {
 				.onHit("bullet", function(e) {
 					//if hit by a bullet increment the score
 					player.score += 5;
+					if(player.score > highScoreVal){
+						highScoreVal = player.score;
+					}
 					score.text("Score: "+player.score);
+					highScore.text("High Score: "+highScoreVal)
+					
 					e[0].obj.destroy(); //destroy the bullet
 
 					var size;
@@ -221,8 +235,8 @@ $(document).ready(function() {
 				Crafty.e("2D, DOM, big, Collision, asteroid");
 			}
 		}
-		//first level has between 1 and 10 asteroids
-		initRocks(1, 10);
+		//first level has between 1 and 5 asteroids
+		initRocks(1, 5);
 	});
 
 });
