@@ -187,6 +187,10 @@ $(document).ready(function() {
 					}
 				}).collision()
 				.onHit("bullet", function(e) {
+					if(this.has("blood")) {
+						this.destroy();
+					}
+				
 					//if hit by a bullet increment the score
 					player.score += 5;
 					if(player.score > highScoreVal){
