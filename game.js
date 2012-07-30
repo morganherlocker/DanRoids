@@ -8,6 +8,8 @@ $(document).ready(function() {
 		//splice the spritemap
 		Crafty.sprite(64  , "images/sprite.png", {
 			ship: [1,0],
+			shipMoving: [2,0],
+			explosion: [3,0],
 			big: [0,0],
 			medium: [0,0],
 			small: [0,0],
@@ -26,9 +28,11 @@ $(document).ready(function() {
 		//score display
 		var score = Crafty.e("2D, DOM, Text")
 			.text("Score: 0")
-			.attr({x: Crafty.viewport.width - 300, y: Crafty.viewport.height - 50, w: 200, h:50})
+			.attr({x: Crafty.viewport.width - 300, y: Crafty.viewport.height - 250, w: 200, h:50})
 			.css({color: "#fff"});
-
+			
+		var isExploding = false;
+		
 		//player entity
 		var player = Crafty.e("2D, Canvas, ship, Controls, Collision")
 			.attr({move: {left: false, right: false, up: false, down: false}, xspeed: 0, yspeed: 0, decay: 0.98, 
@@ -80,18 +84,29 @@ $(document).ready(function() {
 				if(this.move.right) this.rotation += 5;
 				if(this.move.left) this.rotation -= 5;
 
+				//spin if exploding
+				if(isExploding){
+					this.rotation += 15;
+				}
+				
 				//acceleration and movement vector
 				var vx = Math.sin(this._rotation * Math.PI / 180) * 0.3,
 					vy = Math.cos(this._rotation * Math.PI / 180) * 0.3;
 
 				//if the move up is true, increment the y/xspeeds
-				if(this.move.up) {
-					this.yspeed -= vy;
-					this.xspeed += vx;
-				} else {
-					//if released, slow down the ship
-					this.xspeed *= this.decay;
-					this.yspeed *= this.decay;
+				if(!isExploding){
+					if(this.move.up) {
+						//change to shipMoving sprite
+						this.removeComponent("ship").addComponent("shipMoving");
+						this.yspeed -= vy;
+						this.xspeed += vx;
+					} else {
+						//change back to the ship sprite
+						this.removeComponent("shipMoving").addComponent("ship");
+						//if released, slow down the ship
+						this.xspeed *= this.decay;
+						this.yspeed *= this.decay;
+					}
 				}
 
 				//move the ship by the x and y speeds or movement vector
@@ -119,7 +134,14 @@ $(document).ready(function() {
 			}).collision()
 			.onHit("asteroid", function() {
 				//if player gets hit, restart the game
-				Crafty.scene("main");
+				if(!isExploding){
+					isExploding = true;
+					this.removeComponent("ship").addComponent("explosion");
+					setTimeout(function() {
+						Crafty.scene("main");
+						Crafty.scene("main");
+					},2500);
+				}
 			});
 
 		//keep a count of asteroids
@@ -135,7 +157,7 @@ $(document).ready(function() {
 					y: Crafty.math.randomInt(0, Crafty.viewport.height),
 					xspeed: Crafty.math.randomInt(1, 5), 
 					yspeed: Crafty.math.randomInt(1, 5), 
-					rspeed: Crafty.math.randomInt(-5, 5)
+					rspeed: Crafty.math.randomInt(-10, 10)
 				}).bind("EnterFrame", function() {
 					this.x += this.xspeed;
 					this.y += this.yspeed;
