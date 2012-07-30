@@ -13,7 +13,8 @@ $(document).ready(function() {
 			big: [0,0],
 			medium: [0,0],
 			small: [0,0],
-			extrasmall: [0,0]
+			extrasmall: [0,0],
+			blood: [4,0]
 		});
 
 		Crafty.audio.add("Blaster", ["space-blaster.wav", "space-blaster.mp3"])
@@ -209,14 +210,23 @@ $(document).ready(function() {
 						size = "extrasmall";
 					} else if(this.has("extrasmall")) { //if the lowest size, delete self
 						asteroidCount--;
-						this.destroy();
+						this.removeComponent("extrasmall").addComponent("blood");
+						var that = this;
+						setTimeout(function() {that.destroy();}, 200);
 						return;
 					}
-
-					var oldxspeed = this.xspeed;
-					this.xspeed = -this.yspeed;
-					this.yspeed = oldxspeed;
-
+					
+					//move heads that are not destroyed
+					if(this.has("blood")) {
+						this.xspeed = 0;
+						this.yspeed = 0;
+					}
+					else {
+						var oldxspeed = this.xspeed;
+						this.xspeed = -this.yspeed;
+						this.yspeed = oldxspeed;
+					}
+					
 					asteroidCount++;
 					//split into two asteroids by creating another asteroid
 					Crafty.e("2D, DOM, "+size+", Collision, asteroid").attr({x: this._x, y: this._y});
