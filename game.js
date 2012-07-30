@@ -142,9 +142,9 @@ $(document).ready(function() {
 					initRocks(lastCount, lastCount * 2);
 				}
 			}).collision()
-			.onHit("asteroid", function() {
+			.onHit("asteroid", function(e) {
 				//if player gets hit, restart the game
-				if(!isExploding){
+				if(!isExploding && !e[0].obj.has("blood")){
 					isExploding = true;
 					this.removeComponent("ship").addComponent("explosion");
 					setTimeout(function() {
@@ -230,8 +230,10 @@ $(document).ready(function() {
 						this.xspeed = -this.yspeed;
 						this.yspeed = oldxspeed;
 					}
+					if(!this.has("blood")) {
+						asteroidCount++;
+					}
 					
-					asteroidCount++;
 					//split into two asteroids by creating another asteroid
 					Crafty.e("2D, DOM, "+size+", Collision, asteroid").attr({x: this._x, y: this._y});
 				});
@@ -250,7 +252,7 @@ $(document).ready(function() {
 			}
 		}
 		//first level has between 1 and 5 asteroids
-		initRocks(1, 5);
+		initRocks(1, 1);
 	});
 
 });
