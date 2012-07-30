@@ -6,11 +6,12 @@ $(document).ready(function() {
 	//preload the needed assets
 	Crafty.load(["images/sprite.png", "images/bg.png"], function() {
 		//splice the spritemap
-		Crafty.sprite(64, "images/sprite.png", {
+		Crafty.sprite(64  , "images/sprite.png", {
 			ship: [0,0],
 			big: [0,0],
 			medium: [0,0],
-			small: [0,0]
+			small: [0,0],
+			extrasmall: [0,0]
 		});
 
 		Crafty.audio.add("Blaster", ["space-blaster.wav", "space-blaster.mp3"])
@@ -167,7 +168,10 @@ $(document).ready(function() {
 					} else if(this.has("medium")) {
 						this.removeComponent("medium").addComponent("small");
 						size = "small";
-					} else if(this.has("small")) { //if the lowest size, delete self
+					} else if(this.has("small")) {
+						this.removeComponent("small").addComponent("extrasmall");
+						size = "extrasmall";
+					} else if(this.has("extrasmall")) { //if the lowest size, delete self
 						asteroidCount--;
 						this.destroy();
 						return;
